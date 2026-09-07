@@ -25,3 +25,5 @@ backend/storage/pail
 Thumbs.db
 /.vscode/
 /.idea/
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
