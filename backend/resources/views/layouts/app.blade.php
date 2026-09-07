@@ -47,6 +47,10 @@
                     <a href="{{ route('admin.pengembalian.index') }}"
                         class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.pengembalian*') ? 'bg-gray-800 text-white font-medium' : 'text-gray-400 hover:bg-gray-800 hover:text-white transition' }}">
                         Kelola Pengembalian</a>
+
+                    <a href="{{ route('admin.laporan.index') }}"
+                        class="block px-4 py-2 rounded-lg {{ request()->routeIs('admin.laporan*') ? 'bg-gray-800 text-white font-medium' : 'text-gray-400 hover:bg-gray-800 hover:text-white transition' }}">
+                        Cetak Laporan</a>
                 </nav>
             </aside>
         @endif

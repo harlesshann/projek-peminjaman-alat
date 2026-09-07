@@ -59,6 +59,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/laporan-peminjaman', [LaporanController::class, 'index']);
     });
 
+    // Cetak laporan (PDF/HTML) — boleh diakses admin & petugas
+    Route::middleware('role:admin,petugas')->group(function () {
+        Route::get('/laporan-peminjaman/cetak', [LaporanController::class, 'cetak']);
+    });
+
     Route::apiResource('alat', AlatController::class);
 
     Route::get('/katalog',[AlatController::class, 'katalog']);
