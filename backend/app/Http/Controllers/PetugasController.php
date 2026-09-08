@@ -53,14 +53,14 @@ class PetugasController extends Controller
     {
         $search = $request->input('search');
 
-        $peminjamans = Peminjaman::with(['user', 'detailPinjams.alat'])
+        $peminjamans = Peminjaman::with(['user', 'detailPinjams.alat', 'pengembalian'])
             ->whereIn('status', ['dipinjam', 'telat'])
             ->when($search, function ($query, $search) {
                 return $query->whereHas('user', function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%");
                 });
             })
-            ->orderBy('tgl_kembali_plan')
+            ->latest()
             ->get();
 
         return view('petugas.pengembalian.index', compact('peminjamans', 'search'));
