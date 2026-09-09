@@ -34,8 +34,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/riwayat-pinjam', [PeminjamanController::class, 'riwayat']);
     });
 
+    // Katalog bisa diakses oleh admin dan peminjam
+    Route::middleware('role:admin,peminjam')->group(function () {
+        Route::get('/katalog', [AlatController::class, 'katalog']);
+    });
+
     Route::middleware('role.admin')->group(function () {
-        Route::get('/katalog',[AlatController::class, 'katalog']);
         Route::apiResource('kategori', KategoriController::class);
         Route::apiResource('alat', AlatController::class);
         Route::apiResource('users', UserController::class);
@@ -63,10 +67,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin,petugas')->group(function () {
         Route::get('/laporan-peminjaman/cetak', [LaporanController::class, 'cetak']);
     });
-
-    Route::apiResource('alat', AlatController::class);
-
-    Route::get('/katalog',[AlatController::class, 'katalog']);
-
 });
 

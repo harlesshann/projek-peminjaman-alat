@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -26,5 +27,10 @@ class Alat extends Model
 
     public function detailPinjams(): HasMany {
         return $this->hasMany(DetilPinjam::class);
+    }
+
+    public function scopeTersedia(Builder $query): Builder
+    {
+        return $query->where('stok', '>', 0)->where('status_kondisi', 'Baik');
     }
 }
