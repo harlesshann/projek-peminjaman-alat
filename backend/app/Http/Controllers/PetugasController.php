@@ -123,33 +123,23 @@ class PetugasController extends Controller
      * Menampilkan halaman filter + preview laporan (menu "Cetak Laporan").
      * GET /petugas/laporan?start_date=&end_date=&status=
      */
-    public function indexLaporan(Request $request)
+    public function laporan(Request $request)
     {
-        $request->validate([
-            'start_date' => 'nullable|date_format:Y-m-d',
-            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
-            'status' => 'nullable|in:diajukan,dipinjam,dikembalikan,telat',
-        ]);
+        $status = $request->input('status');
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
 
-        $baseQuery = Peminjaman::with(['user', 'detailPinjams.alat', 'pengembalian.petugas'])
-            ->when($request->filled('start_date') && $request->filled('end_date'), function ($q) use ($request) {
-                $q->whereBetween('tgl_pinjam', [$request->start_date, $request->end_date]);
+        $laporans = Peminjaman::with(['user', 'detailPinjams.alat', 'pengembalian'])
+            ->when($status, function ($query, $status) {
+                return $query->where('status', $status);
             })
-            ->when($request->filled('status'), function ($q) use ($request) {
-                $q->where('status', $request->status);
-            });
+            ->when($dari_tanggal && $sampai_tanggal, function ($query) use ($dari_tanggal, $sampai_tanggal) {
+                return $query->whereBetween('tgl_pinjam', [$dari_tanggal, $sampai_tanggal]);
+            })
+            ->latest()
+            ->get();
 
-        // Ringkasan dihitung dari seluruh data terfilter (tanpa pagination)
-        $all = (clone $baseQuery)->latest()->get();
-        $summary = [
-            'total_transaksi' => $all->count(),
-            'total_item' => $all->sum(fn ($p) => $p->detailPinjams->sum('jumlah')),
-            'total_denda' => (int) $all->sum(fn ($p) => (int) ($p->pengembalian->denda ?? 0)),
-        ];
-
-        $peminjamans = $baseQuery->latest()->paginate(15)->withQueryString();
-
-        return view('petugas.laporan.index', compact('peminjamans', 'summary'));
+        return view('petugas.laporan.index', compact('laporans', 'status', 'dari_tanggal', 'sampai_tanggal'));
     }
 
     /**
@@ -160,60 +150,20 @@ class PetugasController extends Controller
      */
     public function cetakLaporan(Request $request)
     {
-        $request->validate([
-            'start_date' => 'nullable|date_format:Y-m-d',
-            'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
-            'status' => 'nullable|in:diajukan,dipinjam,dikembalikan,telat',
-            'output' => 'nullable|in:html,pdf',
-            'download' => 'nullable|in:0,1',
-            'auto_print' => 'nullable|in:0,1',
-        ]);
+        $status = $request->input('status');
+        $dari_tanggal = $request->input('dari_tanggal');
+        $sampai_tanggal = $request->input('sampai_tanggal');
 
-        $output = $request->input('output', 'html');
-
-        $items = Peminjaman::with(['user', 'detailPinjams.alat', 'pengembalian.petugas'])
-            ->when($request->filled('start_date') && $request->filled('end_date'), function ($q) use ($request) {
-                $q->whereBetween('tgl_pinjam', [$request->start_date, $request->end_date]);
+        $laporans = Peminjaman::with(['user', 'detailPinjams.alat', 'pengembalian'])
+            ->when($status, function ($query, $status) {
+                return $query->where('status', $status);
             })
-            ->when($request->filled('status'), function ($q) use ($request) {
-                $q->where('status', $request->status);
+            ->when($dari_tanggal && $sampai_tanggal, function ($query) use ($dari_tanggal, $sampai_tanggal) {
+                return $query->whereBetween('tgl_pinjam', [$dari_tanggal, $sampai_tanggal]);
             })
             ->latest()
             ->get();
 
-        $summary = [
-            'total_transaksi' => $items->count(),
-            'total_item' => $items->sum(fn ($p) => $p->detailPinjams->sum('jumlah')),
-            'total_denda' => (int) $items->sum(fn ($p) => (int) ($p->pengembalian->denda ?? 0)),
-            'per_status' => [
-                'diajukan' => $items->where('status', 'diajukan')->count(),
-                'dipinjam' => $items->where('status', 'dipinjam')->count(),
-                'dikembalikan' => $items->where('status', 'dikembalikan')->count(),
-                'telat' => $items->where('status', 'telat')->count(),
-            ],
-        ];
-
-        $data = [
-            'items' => $items,
-            'summary' => $summary,
-            'filter' => $request->only(['start_date', 'end_date', 'status']),
-            'tanggal_cetak' => now()->translatedFormat('d F Y H:i'),
-            'dicetak_oleh' => auth()->user()?->name ?? 'Sistem',
-            'auto_print' => $request->input('auto_print', '0'),
-            'query_string' => http_build_query($request->only(['start_date', 'end_date', 'status'])),
-        ];
-
-        if ($output === 'pdf') {
-            $filename = 'laporan-peminjaman-' . now()->format('Ymd-His') . '.pdf';
-            $pdf = Pdf::loadView('laporan.cetak-pdf', $data)
-                ->setPaper('a4', 'landscape')
-                ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => false]);
-
-            return $request->input('download') === '1'
-                ? $pdf->download($filename)
-                : $pdf->stream($filename);
-        }
-
-        return view('petugas.laporan.cetak', $data);
+        return view('petugas.laporan.cetak', compact('laporans', 'status', 'dari_tanggal', 'sampai_tanggal'));
     }
 }    
