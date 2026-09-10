@@ -17,7 +17,8 @@
                     <option value="">Semua Status</option>
                     <option value="diajukan" {{ request('status') == 'diajukan' ? 'selected' : '' }}>Diajukan</option>
                     <option value="dipinjam" {{ request('status') == 'dipinjam' ? 'selected' : '' }}>Dipinjam</option>
-                    <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                    <option value="dikembalikan" {{ request('status') == 'dikembalikan' ? 'selected' : '' }}>Dikembalikan
+                    </option>
                     <option value="telat" {{ request('status') == 'telat' ? 'selected' : '' }}>Telat</option>
                 </select>
             </div>
@@ -46,7 +47,8 @@
 
     <!-- Tabel Hasil & Tombol Cetak -->
     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-        <div class="p-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+        <div
+            class="p-5 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-3">
             <h3 class="text-lg font-bold text-gray-800">Hasil Rekap Laporan</h3>
             <a href="{{ route('petugas.laporan.cetak', request()->all()) }}" target="_blank"
                 class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm font-semibold rounded-lg transition shadow-sm flex items-center space-x-2">
@@ -74,10 +76,10 @@
                             <td class="py-3 px-4 border-b font-medium text-gray-900">{{ $item->user->name ?? '-' }}</td>
                             <td class="py-3 px-4 border-b">{{ $item->tgl_pinjam }}</td>
                             <td class="py-3 px-4 border-b">{{ $item->tgl_kembali_plan }}</td>
-                            <td class="py-3 px-4 border-b">
+                            <td class="py-3 px-4 border-b text-center">
                                 <span
-                                    class="px-2.5 py-1 rounded text-xs font-semibold
-                                    {{ $item->status == 'selesai' ? 'bg-emerald-100 text-emerald-700' : '' }}
+                                    class="inline-block px-2.5 py-1 rounded text-xs font-semibold
+                                    {{ in_array($item->status, ['selesai', 'dikembalikan']) ? 'bg-emerald-100 text-emerald-700' : '' }}
                                     {{ $item->status == 'dipinjam' ? 'bg-blue-100 text-blue-700' : '' }}
                                     {{ $item->status == 'telat' ? 'bg-red-100 text-red-700' : '' }}
                                     {{ $item->status == 'diajukan' ? 'bg-yellow-100 text-yellow-700' : '' }}">

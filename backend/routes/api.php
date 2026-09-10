@@ -59,12 +59,11 @@ Route::middleware('auth:sanctum')->group(function () {
         [PengembalianController::class, 'destroy']);
 
         Route::get('/log-aktivitas', [LogAktivitasController::class, 'index']);
-
-        Route::get('/laporan-peminjaman', [LaporanController::class, 'index']);
     });
 
-    // Cetak laporan (PDF/HTML) — boleh diakses admin & petugas
-    Route::middleware('role:admin,petugas')->group(function () {
+    // Laporan & cetak laporan — khusus petugas (dihapus dari role admin)
+    Route::middleware('role:petugas')->group(function () {
+        Route::get('/laporan-peminjaman', [LaporanController::class, 'index']);
         Route::get('/laporan-peminjaman/cetak', [LaporanController::class, 'cetak']);
     });
 });

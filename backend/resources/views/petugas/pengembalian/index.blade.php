@@ -17,12 +17,12 @@
     @endif
 
     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
-        <div class="p-5 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="p-5 border-b border-gray-200 bg-gray-50 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
             <div>
-                <h3 class="text-lg font-bold text-gray-800">Daftar Peminjaman Aktif(Belum Kembali)</h3>
+                <h3 class="text-lg font-bold text-gray-800">Daftar Peminjaman Aktif (Belum Kembali)</h3>
             </div>
 
-            <form action="{{ route('petugas.pengembalian.index') }}" method="GET" class="flex w-full md:w-80">
+            <form action="{{ route('petugas.pengembalian.index') }}" method="GET" class="flex w-full md:w-80 shrink-0">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama peminjam..."
                     class="w-full px-3 py-2 text-sm border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 <button type="submit"
@@ -58,9 +58,9 @@
                             </td>
                             <td class="py-3 px-4 border-b whitespace-nowrap">{{ $item->tgl_pinjam }}</td>
                             <td class="py-3 px-4 border-b whitespace-nowrap">{{ $item->tgl_kembali_plan }}</td>
-                            <td class="py-3 px-4 border-b">
+                            <td class="py-3 px-4 border-b text-center">
                                 <span
-                                    class="px-2.5 py-1 rounded text-xs font-semibold {{ $item->status == 'telat' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
+                                    class="inline-block px-2.5 py-1 rounded text-xs font-semibold {{ $item->status == 'telat' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
                                     {{ ucfirst($item->status) }}
                                 </span>
                             </td>
@@ -77,7 +77,7 @@
                             </td>
                             <td class="py-3 px-4 border-b text-center">
                                 <form action="{{ route('petugas.pengembalian.proses', $item->id) }}" method="POST"
-                                    class="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2 w-56"
+                                    class="inline-block text-left mt-0 p-3 bg-gray-50 border border-gray-200 rounded-lg space-y-2 w-56"
                                     onsubmit="return confirm('Catat pengembalian alat ini? Stok akan dipulihkan.')">
                                     @csrf
                                     <div>

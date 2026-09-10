@@ -49,9 +49,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/pengembalian/{id}/edit', [AdminController::class, 'editPengembalian'])->name('pengembalian.edit');
     Route::put('/pengembalian/{id}', [AdminController::class, 'updatePengembalian'])->name('pengembalian.update');
     Route::delete('/pengembalian/{id}', [AdminController::class, 'destroyPengembalian'])->name('pengembalian.destroy');
-    // Laporan & Cetak
-    Route::get('/laporan', [AdminController::class, 'indexLaporan'])->name('laporan.index');
-    Route::get('/laporan/cetak', [AdminController::class, 'cetakLaporan'])->name('laporan.cetak');
 });
 
 //petugas
