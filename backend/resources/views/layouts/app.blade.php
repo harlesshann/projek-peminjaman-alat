@@ -128,6 +128,43 @@
         @endif
 
 
+        <!-- MENU KHUSUS PEMINJAM -->
+        @if (auth()->user()->role === 'peminjam')
+            <aside class="w-64 bg-gray-900 text-white flex flex-col hidden md:flex">
+                <div class="p-5 font-bold tracking-wider border-b border-gray-800">
+                    PANEL PEMINJAM
+                </div>
+
+                <nav class="flex-1 p-4 space-y-2">
+                    <a href="{{ route('peminjam.katalog') }}"
+                        class="flex items-center gap-2.5 px-4 py-2 rounded-lg transition {{ request()->routeIs('peminjam.katalog*') ? 'bg-gray-800 text-white font-medium shadow' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+                        </svg>
+                        <span>Katalog Alat</span></a>
+
+                    <a href="{{ route('peminjam.riwayat') }}"
+                        class="flex items-center gap-2.5 px-4 py-2 rounded-lg transition {{ request()->routeIs('peminjam.riwayat*') ? 'bg-gray-800 text-white font-medium shadow' : 'text-gray-400 hover:bg-gray-800 hover:text-white' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0118 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3l1.5 1.5 3-3.75" />
+                        </svg>
+                        <span>Riwayat Pinjam</span></a>
+                </nav>
+
+                <div class="p-4 border-t border-gray-800 text-sm text-gray-400">
+                    Logged in as:
+                    <span class="text-white font-semibold">
+                        {{ auth()->user()->name }}
+                    </span>
+                </div>
+            </aside>
+        @endif
+
+
         <!-- MAIN CONTENT CONTAINER -->
         <div class="flex-1 flex flex-col overflow-y-auto min-w-0">
 

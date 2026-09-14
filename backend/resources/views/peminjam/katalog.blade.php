@@ -1,91 +1,97 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Katalog Alat - Peminjam</title>
+@section('title', 'Katalog Alat - Panel Peminjam')
+@section('header-title', 'Katalog Alat Tersedia')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-
-<body class="bg-light">
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
-        <div class="container">
-            <a class="navbar-brand" href="#">Panel Peminjam</a>
-
-            <div class="d-flex">
-                <a href="{{ route('peminjam.riwayat') }}" class="btn btn-outline-light btn-sm me-2">
-                    Riwayat Pinjam
-                </a>
-
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
-
-                    <button type="submit" class="btn btn-light btn-sm text-primary">
-                        Logout
-                    </button>
-                </form>
-            </div>
+@section('content')
+    @if (session('success'))
+        <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-lg shadow-sm text-sm">
+            {{ session('success') }}
         </div>
-    </nav>
-    <div class="container">
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
+    @endif
 
-        <h3 class="mb-3">Katalog Alat Tersedia</h3>
+    @if (session('error'))
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg shadow-sm text-sm">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    @if ($errors->any())
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg shadow-sm text-sm">
+            <ul class="list-disc list-inside space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+        <div class="p-5 border-b border-gray-200 bg-gray-50">
+            <h3 class="text-lg font-bold text-gray-800">Ajukan Peminjaman Alat</h3>
+            <p class="text-sm text-gray-500 mt-1">Centang alat yang ingin dipinjam, atur jumlah, lalu tentukan rencana tanggal kembali.</p>
+        </div>
 
         <form action="{{ route('peminjam.peminjaman.ajukan') }}" method="POST">
             @csrf
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Rencana Tanggal Kembali</label>
-                        <input type="date" name="tgl_kembali_plan" class="form-control" required>
-                    </div>
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th width="50">Pilih</th>
-                                <th>Nama Alat</th>
-                                <th>Kategori</th>
-                                <th>Stok Tersedia</th>
-                                <th width="150">Jumlah Pinjam</th>
+            <div class="p-5 border-b border-gray-200 bg-white">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Rencana Tanggal Kembali</label>
+                <input type="date" name="tgl_kembali_plan" value="{{ old('tgl_kembali_plan') }}" required
+                    min="{{ date('Y-m-d', strtotime('+1 day')) }}"
+                    class="w-full md:w-80 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('tgl_kembali_plan') border-red-500 @enderror">
+                @error('tgl_kembali_plan')
+                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+                            <th class="py-3 px-4 border-b text-center w-16">Pilih</th>
+                            <th class="py-3 px-4 border-b">Nama Alat</th>
+                            <th class="py-3 px-4 border-b">Kategori</th>
+                            <th class="py-3 px-4 border-b">Stok Tersedia</th>
+                            <th class="py-3 px-4 border-b w-40">Jumlah Pinjam</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm">
+                        @forelse($alats as $alat)
+                            <tr class="hover:bg-gray-50 transition align-middle">
+                                <td class="py-3 px-4 border-b text-center">
+                                    <input type="checkbox" name="alat_id[]" value="{{ $alat->id }}"
+                                        {{ in_array($alat->id, old('alat_id', [])) ? 'checked' : '' }}
+                                        class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                </td>
+                                <td class="py-3 px-4 border-b font-medium text-gray-900">{{ $alat->nama_alat }}</td>
+                                <td class="py-3 px-4 border-b">{{ $alat->kategori->nama_kategori ?? '-' }}</td>
+                                <td class="py-3 px-4 border-b font-semibold">{{ $alat->stok }}</td>
+                                <td class="py-3 px-4 border-b">
+                                    <input type="number" name="jumlah[{{ $alat->id }}]"
+                                        value="{{ old('jumlah.' . $alat->id, 1) }}" min="1"
+                                        max="{{ $alat->stok }}"
+                                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($alats as $index => $alat)
-                                <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" name="alat_id[]" value="{{ $alat->id }}"
-                                            class="form-check-input">
-                                    </td>
-                                    <td>{{ $alat->nama_alat }}</td>
-                                    <td>{{ $alat->kategori->nama_kategori ?? '-' }}</td>
-                                    <td>{{ $alat->stok }}</td>
-                                    <td>
-                                        <input type="number" name="jumlah[]" class="form-control form-control-sm"
-                                            value="1" min="1" max="{{ $alat->stok }}">
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="text-center">Tidak ada alat yang tersedia saat ini.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                    <button type="submit" class="btn btn-primary">Ajukan Peminjaman</button>
-                </div>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-gray-500">Tidak ada alat yang tersedia saat ini.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="p-5 border-t border-gray-200 bg-gray-50 flex flex-col sm:flex-row gap-3 sm:items-center">
+                <button type="submit" @if ($alats->isEmpty()) disabled @endif
+                    class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-4 py-2 rounded-lg transition shadow-sm">
+                    Ajukan Peminjaman
+                </button>
+                <a href="{{ route('peminjam.riwayat') }}"
+                    class="bg-gray-800 hover:bg-gray-900 text-white text-sm font-semibold px-4 py-2 rounded-lg transition text-center">
+                    Lihat Riwayat Pinjam
+                </a>
             </div>
         </form>
     </div>
-
-</body>
-
-</html>
+@endsection
