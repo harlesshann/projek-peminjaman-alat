@@ -1,86 +1,74 @@
 @extends('layouts.app')
 
 @section('title', 'Proses Pengembalian - Panel Admin')
-@section('header-title', 'Proses Pengembalian Alat')
+@section('header-title', 'Form Proses Pengembalian Alat')
 
 @section('content')
-    @if (session('success'))
-        <div class="mb-4 bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-lg shadow-sm text-sm">
-            {{ session('success') }}
-        </div>
-    @endif
+    <div class="max-w-xl bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        @if (session('error'))
+            <div class="mb-4 bg-red-50 border border-red-200 text-red-800 p-3 rounded-lg text-sm">
+                {{ session('error') }}
+            </div>
+        @endif
 
-    @if (session('error'))
-        <div class="mb-4 bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg shadow-sm text-sm">
-            {{ session('error') }}
-        </div>
-    @endif
-
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 max-w-2xl">
-        <div class="p-5 border-b border-gray-200 bg-gray-50">
-            <h3 class="text-lg font-bold text-gray-800">Form Proses Pengembalian</h3>
-        </div>
-
-        <form action="{{ route('admin.pengembalian.store') }}" method="POST" class="p-6 space-y-5">
+        <form action="{{ route('admin.pengembalian.store') }}" method="POST">
             @csrf
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Peminjaman (status dipinjam)</label>
-                <select name="peminjaman_id"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('peminjaman_id') border-red-500 @enderror">
-                    <option value="">-- Pilih Peminjaman --</option>
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-semibold mb-2">Pilih Transaksi Peminjaman (Aktif)</label>
+                <select name="peminjaman_id" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">-- Pilih Peminjam & Tanggal Rencana --</option>
                     @foreach ($peminjamans as $p)
                         <option value="{{ $p->id }}" {{ old('peminjaman_id') == $p->id ? 'selected' : '' }}>
-                            #{{ $p->id }} - {{ $p->user->name ?? 'User' }}
-                            ({{ $p->tgl_pinjam }} s/d {{ $p->tgl_kembali_plan }})
+                            {{ $p->user->name }} (Rencana Kembali: {{ $p->tgl_kembali_plan }}) - Status:
+                            {{ ucfirst($p->status) }}
                         </option>
                     @endforeach
                 </select>
                 @error('peminjaman_id')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Kondisi Barang Kembali</label>
-                <input type="text" name="kondisi_kembali" value="{{ old('kondisi_kembali') }}"
-                    placeholder="Contoh: Lengkap dan Berfungsi Baik"
-                    class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('kondisi_kembali') border-red-500 @enderror">
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-semibold mb-2">Tanggal Pengembalian Aktual</label>
+                <input type="date" name="tgl_kembali" value="{{ old('tgl_kembali', date('Y-m-d')) }}" required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                @error('tgl_kembali')
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 text-sm font-semibold mb-2">Kondisi Alat Saat Kembali</label>
+                <input type="text" name="kondisi_kembali" value="{{ old('kondisi_kembali', 'Baik') }}" required
+                    placeholder="Contoh: Baik / Ada yang lecet / Rusak"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 @error('kondisi_kembali')
-                    <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Denda (Rp)</label>
-                    <input type="number" name="denda" value="{{ old('denda', 0) }}" min="0"
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('denda') border-red-500 @enderror">
-                    @error('denda')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Kembali</label>
-                    <input type="date" name="tgl_kembali" value="{{ old('tgl_kembali') }}"
-                        class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 @error('tgl_kembali') border-red-500 @enderror">
-                    <p class="text-xs text-gray-400 mt-1">Kosongkan untuk menggunakan tanggal hari ini.</p>
-                    @error('tgl_kembali')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-semibold mb-2">Denda Tambahan (Opsional, misal: Alat
+                    Rusak/Hilang)</label>
+                <input type="number" name="denda_tambahan" value="{{ old('denda_tambahan', 0) }}" min="0"
+                    placeholder="0"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <p class="text-xs text-gray-500 mt-1">*Denda keterlambatan hari akan dihitung otomatis oleh sistem jika
+                    melewati tanggal rencana kembali.</p>
+                @error('denda_tambahan')
+                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                @enderror
             </div>
 
-            <div class="flex items-center gap-3 pt-2">
-                <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 text-sm font-semibold rounded-lg transition">
-                    Proses Pengembalian
-                </button>
+            <div class="flex justify-end space-x-2">
                 <a href="{{ route('admin.pengembalian.index') }}"
-                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 text-sm font-semibold rounded-lg transition">
-                    Batal
-                </a>
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg text-sm font-semibold transition">Batal</a>
+                <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">Proses
+                    Pengembalian</button>
             </div>
         </form>
     </div>
