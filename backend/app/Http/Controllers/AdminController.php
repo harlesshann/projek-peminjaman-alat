@@ -464,7 +464,7 @@ class AdminController extends Controller
 
         $pengembalians = Pengembalian::with(['peminjaman.user', 'petugas'])
             ->when($search, function ($query, $search) {
-                return $query->where('kondisi.kembali', 'like', "%{$search}%")
+                return $query->where('kondisi_kembali', 'like', "%{$search}%")
                     ->orWhereHas('peminjaman.user', function ($q) use ($search) {
                         $q->where('name', 'like', "%{$search}%");
                 });
