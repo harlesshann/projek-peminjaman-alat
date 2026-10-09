@@ -3,6 +3,12 @@
 01.API-UJIKOM.zip
 backend.zip
 
+# Dokumen PDF - jangan commit atau upload
+*.pdf
+
+*.docx
+
+qa
 # Env & secrets
 .env
 backend/.env

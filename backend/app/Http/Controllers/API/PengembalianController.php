@@ -31,6 +31,9 @@ class PengembalianController extends Controller
         $user  = auth()->user();
         $query = Pengembalian::with(self::RELATIONS);
 
+        // Sembunyikan pengembalian draft (belum diproses) dari daftar
+        $query->where('status', '!=', 'draft');
+
         if ($user->role === 'peminjam') {
             $query->whereHas('peminjaman', fn ($q) => $q->where('user_id', $user->id));
         }

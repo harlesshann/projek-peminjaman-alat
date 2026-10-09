@@ -77,14 +77,31 @@ class PetugasController extends Controller
         try {
             $peminjaman = Peminjaman::with('detailPinjams')->findOrFail($peminjamanId);
 
-            // Simpan data pengembalian
-            Pengembalian::create([
-                'peminjaman_id' => $peminjaman->id,
-                'tgl_kembali' => now(),
-                'kondisi_kembali' => $request->kondisi_kembali,
-                'denda' => $request->denda ?? 0,
-                'petugas_id' => auth()->id(),
-            ]);
+            // Cek apakah sudah ada draft pengembalian dari peminjam
+            $draftPengembalian = $peminjaman->pengembalian()
+                ->where('status', 'draft')
+                ->first();
+
+            if ($draftPengembalian) {
+                // Update draft yang sudah ada
+                $draftPengembalian->update([
+                    'kondisi_kembali' => $request->kondisi_kembali,
+                    'denda' => $request->denda ?? 0,
+                    'petugas_id' => auth()->id(),
+                    'status' => 'dikembalikan',
+                ]);
+                $pengembalian = $draftPengembalian;
+            } else {
+                // Simpan data pengembalian baru
+                $pengembalian = Pengembalian::create([
+                    'peminjaman_id' => $peminjaman->id,
+                    'tgl_kembali' => now(),
+                    'kondisi_kembali' => $request->kondisi_kembali,
+                    'denda' => $request->denda ?? 0,
+                    'petugas_id' => auth()->id(),
+                    'status' => 'dikembalikan',
+                ]);
+            }
             
             $peminjaman->update(['status' => 'dikembalikan']);
 

@@ -36,6 +36,7 @@
                         <th class="py-3 px-4 border-b">Rencana Kembali</th>
                         <th class="py-3 px-4 border-b">Detail Alat</th>
                         <th class="py-3 px-4 border-b text-center">Status</th>
+                        <th class="py-3 px-4 border-b text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-700 text-sm">
@@ -68,10 +69,26 @@
                                     <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">{{ ucfirst($item->status) }}</span>
                                 @endif
                             </td>
+                            <td class="py-3 px-4 border-b text-center">
+                                @if ($item->status === 'dipinjam')
+                                    <form action="{{ route('peminjam.pengembalian.ajukan', $item->id) }}" method="POST"
+                                        onsubmit="return confirm('Ajukan pengembalian alat ini?')">
+                                        @csrf
+                                        <button type="submit"
+                                            class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg">
+                                            Ajukan Pengembalian
+                                        </button>
+                                    </form>
+                                @elseif($item->pengembalian)
+                                    <span class="text-xs text-gray-500">Sudah dikembalikan</span>
+                                @else
+                                    <span class="text-xs text-gray-400">-</span>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-6 text-center text-gray-500">
+                            <td colspan="5" class="py-6 text-center text-gray-500">
                                 Belum ada riwayat peminjaman.
                                 <a href="{{ route('peminjam.katalog') }}" class="text-blue-600 hover:underline font-medium">Ajukan sekarang</a>.
                             </td>

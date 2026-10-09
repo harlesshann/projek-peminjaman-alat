@@ -463,6 +463,7 @@ class AdminController extends Controller
         $search = $request->input('search');
 
         $pengembalians = Pengembalian::with(['peminjaman.user', 'petugas'])
+            ->where('status', '!=', 'draft')
             ->when($search, function ($query, $search) {
                 return $query->where('kondisi_kembali', 'like', "%{$search}%")
                     ->orWhereHas('peminjaman.user', function ($q) use ($search) {
@@ -526,8 +527,8 @@ class AdminController extends Controller
                 'petugas_id' => auth()->id(),
             ]);
 
-            // Ubah status peminjaman menjadi selesai
-            $peminjaman->update(['status' => 'selesai']);
+            // Ubah status peminjaman menjadi dikembalikan
+            $peminjaman->update(['status' => 'dikembalikan']);
 
             // Kembalikan stok alat ke inventaris
             foreach ($peminjaman->detailPinjams as $detail) {

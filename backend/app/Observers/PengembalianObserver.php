@@ -21,7 +21,8 @@ class PengembalianObserver
     public function created(Pengembalian $pengembalian): void
     {
         $status = optional($pengembalian->peminjaman)->status ?? '-';
-        $this->catatLog("Memproses pengembalian alat (ID Kembali: #{$pengembalian->id}) untuk Peminjaman #{$pengembalian->peminjaman_id}. Status akhir: {$status}.");
+        $pengembalianStatus = $pengembalian->status ?? '-';
+        $this->catatLog("Memproses pengembalian alat (ID Kembali: #{$pengembalian->id}) untuk Peminjaman #{$pengembalian->peminjaman_id}. Status peminjaman: {$status}, Status pengembalian: {$pengembalianStatus}.");
     }
 
     public function updated(Pengembalian $pengembalian): void

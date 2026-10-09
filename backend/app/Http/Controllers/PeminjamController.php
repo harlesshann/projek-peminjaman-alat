@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Alat;
 use App\Models\Peminjaman;
 use App\Models\DetilPinjam;
+use App\Models\Pengembalian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ class PeminjamController extends Controller
     // Melihat daftar/katalog alat yang tersedia
     public function katalogAlat()
     {
-        $alats = Alat::with('kategori')->where('stok', '>', 0)->get();
+        $alats = Alat::with('kategori')->tersedia()->get();
         return view('peminjam.katalog', compact('alats'));
     }
 
@@ -86,5 +87,43 @@ class PeminjamController extends Controller
             ->paginate(10);
 
         return view('peminjam.riwayat', compact('peminjamans'));
+    }
+
+    public function ajukanPengembalian($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                $peminjaman = Peminjaman::with('detailPinjams')
+                    ->where('user_id', Auth::id())
+                    ->lockForUpdate()
+                    ->findOrFail($id);
+
+                if ($peminjaman->status !== 'dipinjam') {
+                    throw new \Exception('Peminjaman tidak dapat dikembalikan pada status saat ini.');
+                }
+
+                // Cek apakah sudah ada pengembalian untuk peminjaman ini
+                if ($peminjaman->pengembalian) {
+                    throw new \Exception('Peminjaman ini sudah pernah dikembalikan.');
+                }
+
+                // Simpan catatan pengembalian sebagai draft, JANGAN ubah status peminjaman
+                Pengembalian::create([
+                    'peminjaman_id' => $peminjaman->id,
+                    'tgl_kembali' => now()->toDateString(),
+                    'kondisi_kembali' => 'Belum diperiksa',
+                    'denda' => 0,
+                    'petugas_id' => null,
+                    'status' => 'draft',
+                ]);
+
+                // Jangan update status peminjaman -> tetap 'dipinjam'
+                // Agar tetap muncul di panel pemantauan petugas
+            });
+
+            return redirect()->back()->with('success', 'Pengembalian alat berhasil diajukan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
     }
 }
