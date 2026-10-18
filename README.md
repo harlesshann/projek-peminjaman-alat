@@ -72,5 +72,13 @@ Akses:
 - Password di `docker-compose.yml` hanya untuk dev lokal, ganti di production
 - Salin dari `.env.example` untuk setup baru
 
+Railway :
+https://9router-production-744d0.up.railway.app/dashboard/endpoint
+
+Threads :
+https://9r69.itroute.web.id/dashboard/endpoint
+
+Hermes :
+https://hermes-agent-production-01b7.up.railway.app/setup
 ## Lisensi
 MIT
