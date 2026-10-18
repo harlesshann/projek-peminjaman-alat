@@ -24,6 +24,34 @@ docker compose up --build -d
 docker exec -it laravel-api composer install
 docker exec -it laravel-api php artisan key:generate
 docker exec -it laravel-api php artisan migrate --seed
+
+1. Persiapan WSL (di Windows, PowerShell admin)
+wsl --install -d Ubuntu
+Restart kalau diminta, buat user + password Ubuntu.
+2. Install tool di WSL Ubuntu
+sudo apt update && sudo apt install -y git curl
+3. Install Docker — pilih salah satu:
+- Docker Desktop di Windows (recommended): aktifkan Settings → Resources → WSL integration → Ubuntu. Command docker langsung jalan di WSL.
+- Docker Engine langsung di WSL: ikuti https://docs.docker.com/engine/install/ubuntu/
+Cek: docker --version && docker compose version
+4. Clone repo
+git clone https://github.com/harlesshann/projek-peminjaman-alat.git
+cd projek-peminjaman-alat
+5. Setup env
+cp backend/.env.example backend/.env
+Pastikan isi .env sesuai docker-compose:
+DB_HOST=mysql-server
+DB_DATABASE=API_ujikom
+DB_USERNAME=api_ujikom
+DB_PASSWORD=api_ujikom
+6. Jalankan
+docker compose up --build -d
+docker exec -it laravel-api composer install
+docker exec -it laravel-api php artisan key:generate
+docker exec -it laravel-api php artisan migrate --seed
+7. Akses
+- API: http://localhost:8000/api
+- phpMyAdmin: http://localhost:8081 (host mysql-server, db API_ujikom)
 ```
 
 Akses:
